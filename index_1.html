@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Medicine Quiz</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f9d8a">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#eefaf8;--card:#fff;--tx:#12343b;--mut:#5b7b80;--pri:#0f9d8a;--pri2:#0b7285;--ok:#2e9e5b;--bad:#d64545;--line:#d4e8e5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1f22;--card:#16302f;--tx:#e6f5f3;--mut:#9bbcb8;--line:#25484a}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Roboto,sans-serif;padding:14px 14px 80px;max-width:520px;margin:auto}
+h1{margin:6px 0;font-size:26px}h2{margin:10px 0}
+.hero{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:20px;padding:20px;text-align:center}
+.hero p{margin:4px 0;opacity:.9}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:13px 14px;width:100%;margin:6px 0;background:var(--pri);color:#fff;font-weight:600}
+button.alt{background:var(--card);color:var(--tx);border:1px solid var(--line);text-align:left;font-weight:500}
+button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+button.no{background:var(--bad);color:#fff;border-color:var(--bad)}
+button:disabled{opacity:.85}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.grid button{padding:12px 0;margin:0;text-align:center}
+.lock{background:var(--line)!important;color:var(--mut)!important}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pri)}
+.row{display:flex;justify-content:space-between;color:var(--mut);font-size:14px;margin:6px 0}
+.exp{background:#fff4e5;color:#5a3b00;border-radius:12px;padding:10px;margin:8px 0;font-size:15px}
+.small{font-size:13px;color:var(--mut)}
+.ad{position:fixed;left:0;right:0;bottom:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);text-align:center;font-size:13px;color:var(--mut)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.8);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;z-index:9}
+.big{font-size:54px;font-weight:700}
+</style></head><body>
+<div id="app"></div>
+<div class="ad">Banner ad placeholder (real AdMob banner goes here later)</div>
+<script src="batch1.js"></script>
+<script>
+var CATS=["Beginner","Easy","Intermediate","Upper Intermediate","Moderate","Upper Moderate","Hard","Very Hard","Expert","Master"];
+var Q=[
+["What is a normal resting heart rate for a healthy adult?",["60–100 beats per minute","10–30 beats per minute","120–160 beats per minute","200–240 beats per minute"],0,"A healthy adult at rest usually has 60–100 beats per minute."],
+["What is the largest organ of the human body?",["Liver","Skin","Lungs","Brain"],1,"The skin is the largest organ. It protects the body and helps control temperature."],
+["Which blood type is the universal donor for red blood cells?",["AB positive","A negative","O negative","B positive"],2,"O negative red cells can be given to most patients in emergencies."],
+["Which vitamin does the skin make with the help of sunlight?",["Vitamin C","Vitamin K","Vitamin B12","Vitamin D"],3,"Sunlight on the skin helps the body make vitamin D."],
+["Which part of the blood carries oxygen?",["Hemoglobin","Plasma water","Platelets","White cells"],0,"Hemoglobin inside red blood cells binds and carries oxygen."],
+["Which organ makes insulin?",["Stomach","Kidney","Pancreas","Spleen"],2,"The pancreas makes insulin, which helps control blood sugar."],
+["How many bones does an adult human body usually have?",["106","206","306","406"],1,"Adults usually have 206 bones. Babies are born with more, which fuse over time."],
+["What is the average normal human body temperature?",["About 27°C","About 47°C","About 37°C","About 57°C"],2,"Average normal body temperature is about 37°C (98.6°F)."],
+["Which organs filter the blood and make urine?",["Kidneys","Lungs","Intestines","Tonsils"],0,"The kidneys filter waste from blood and make urine."],
+["Antibiotics are used to treat infections caused by what?",["Viruses","Bacteria","Allergies","Stress"],1,"Antibiotics work against bacteria. They do not work against viruses like the common cold."]
+];
+var P;try{P=JSON.parse(localStorage.getItem("mq"))}catch(e){}
+if(!P||typeof P.max!=="number")P={max:1,best:{},pts:0,done:0,acc:false};
+function save(){try{localStorage.setItem("mq",JSON.stringify(P))}catch(e){}}
+var A=document.getElementById("app"),S={};
+function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function home(){
+ if(!P.acc){A.innerHTML='<div class="hero"><h1>🩺 Medicine Quiz</h1></div><div class="card"><h2>Medical disclaimer</h2><p>This app is for educational purposes only. It is not intended for self-medication, self-diagnosis, or personal treatment decisions. Please consult a qualified healthcare professional for personal medical advice.</p><button id="ac">I understand</button></div>';
+  document.getElementById("ac").onclick=function(){P.acc=true;save();home()};return}
+ var h='<div class="hero"><h1>🩺 Medicine Quiz</h1><p>Total points: <b>'+P.pts+'</b> · Levels passed: <b>'+P.done+'</b>/1000</p></div><h2>Categories</h2>';
+ CATS.forEach(function(c,i){var lo=i*100+1,hi=i*100+100,open=P.max>=lo;
+  var d=Math.max(0,Math.min(100,P.max-lo));
+  h+='<div class="card"><b>'+(i+1)+'. '+c+'</b><div class="row"><span>Levels '+lo+'–'+hi+'</span><span>'+(open?d+'/100 passed':'🔒 Locked')+'</span></div><div class="bar"><i style="width:'+d+'%"></i></div>'+(open?'<button data-c="'+i+'">Open</button>':'')+'</div>'});
+ h+='<p class="small">Educational use only. Not medical advice.</p><button class="alt" id="rs">Reset progress</button>';
+ A.innerHTML=h;
+ A.querySelectorAll("[data-c]").forEach(function(b){b.onclick=function(){levels(+b.dataset.c)}});
+ document.getElementById("rs").onclick=function(){if(confirm("Erase all progress?")){P={max:1,best:{},pts:0,done:0,acc:true};save();home()}}}
+function levels(c){
+ var h='<button class="alt" id="bk">← Back</button><h2>'+CATS[c]+'</h2><div class="grid">';
+ for(var i=1;i<=100;i++){var n=c*100+i,ok=n<=P.max&&n<=Math.floor((window.QB||[]).length/10);h+='<button '+(ok?'data-n="'+n+'"':'class="lock" disabled')+'>'+(ok?(P.best[n]>=70?'✓':'')+i:'🔒')+'</button>'}
+ A.innerHTML=h+'</div>';window.scrollTo(0,0);
+ document.getElementById("bk").onclick=home;
+ A.querySelectorAll("[data-n]").forEach(function(b){b.onclick=function(){start(+b.dataset.n)}})}
+function qsFor(n){var B=window.QB||[],s=(n-1)*10;if(s+10>B.length)return null;return B.slice(s,s+10).map(function(r){return{q:r[0],o:sh([{t:r[1],c:true},{t:r[2],c:false},{t:r[3],c:false},{t:r[4],c:false}]),e:r[5]}})}
+function start(n){var qs=qsFor(n);if(!qs)return;S={n:n,i:0,sc:0,hint:false,qs:qs};ask()}
+function ask(){
+ var q=S.qs[S.i],c=Math.floor((S.n-1)/100);S.done=false;
+ var h='<div class="row"><span>'+CATS[c]+' · Level '+S.n+'</span><span>Score '+S.sc+'</span></div><div class="bar"><i style="width:'+S.i*10+'%"></i></div><div class="card"><div class="small">Question '+(S.i+1)+' of 10</div><h2>'+q.q+'</h2><div id="ops"></div><div id="fb"></div></div><button class="alt" id="hn"'+(S.hint?' disabled':'')+'>🎬 Watch ad for a 50/50 hint</button>';
+ A.innerHTML=h;window.scrollTo(0,0);var ops=document.getElementById("ops");
+ q.o.forEach(function(o,k){var b=document.createElement("button");b.className="alt";b.textContent=o.t;b.onclick=function(){pick(k)};ops.appendChild(b)});
+ document.getElementById("hn").onclick=function(){if(S.done||S.hint)return;S.hint=true;ov("Rewarded ad placeholder","Your hint is coming…",3,function(){var bs=ops.children,w=0;q.o.forEach(function(o,k){if(!o.c&&w<2){bs[k].style.display="none";w++}});ask2()})}}
+function ask2(){document.getElementById("hn").disabled=true}
+function pick(k){
+ if(S.done)return;S.done=true;var q=S.qs[S.i],bs=document.getElementById("ops").children,fb=document.getElementById("fb");
+ q.o.forEach(function(o,j){bs[j].disabled=true;if(o.c)bs[j].className="ok"});
+ if(q.o[k].c){S.sc+=10;fb.innerHTML='<p><b>✅ Correct! +10</b></p>'}
+ else{bs[k].className="no";fb.innerHTML='<p><b>❌ Not quite.</b></p><div class="exp"><b>Correct answer:</b> '+q.o.filter(function(o){return o.c})[0].t+'<br>'+q.e+'</div>'}
+ fb.innerHTML+='<button id="nx">'+(S.i<9?'Next question':'See result')+'</button>';
+ document.getElementById("nx").onclick=function(){S.i++;S.i<10?ask():fin()}}
+function fin(){
+ var ok=S.sc>=70,n=S.n;
+ if(P.best[n]===undefined||S.sc>P.best[n]){P.pts+=S.sc-(P.best[n]||0);P.best[n]=S.sc}
+ if(ok&&n===P.max&&n<1000){P.max++}
+ if(ok){P.done=Object.keys(P.best).filter(function(k){return P.best[k]>=70}).length}
+ save();
+ var go=function(){
+  var h='<div class="hero"><div class="big">'+S.sc+'/100</div><h2>'+(ok?'🎉 Level passed!':'Keep practicing')+'</h2><p>'+(ok?'Next level unlocked.':'You need 70 points to pass.')+'</p></div>';
+  if(ok&&n<1000)h+='<button id="a">Next level</button>';
+  h+='<button class="alt" id="b">'+(ok?'Play again':'Retry level')+'</button><button class="alt" id="c">Home</button><p class="small">Educational use only. Not medical advice.</p>';
+  A.innerHTML=h;window.scrollTo(0,0);
+  if(ok&&n<1000)document.getElementById("a").onclick=function(){start(n+1)};
+  document.getElementById("b").onclick=function(){start(n)};document.getElementById("c").onclick=home};
+ if(n%3===0)ov("Interstitial ad placeholder","Real AdMob full-screen ad shows here, only now and then.",3,go);else go()}
+function ov(t,m,s,cb){
+ var d=document.createElement("div");d.className="ov";document.body.appendChild(d);
+ (function tick(){if(s<=0){d.remove();cb();return}d.innerHTML='<h2>'+t+'</h2><p>'+m+'</p><div class="big">'+s+'</div>';s--;setTimeout(tick,1000)})()}
+home();
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script></body></html>
