@@ -54,8 +54,8 @@ function save(){try{localStorage.setItem("mq",JSON.stringify(P))}catch(e){}}
 var A=document.getElementById("app"),S={};
 function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
 function home(){
- if(!P.acc){A.innerHTML='<div class="hero"><h1>🩺 Medicine Quiz</h1></div><div class="card"><h2>Medical disclaimer</h2><p>This app is for educational purposes only. It is not intended for self-medication, self-diagnosis, or personal treatment decisions. Please consult a qualified healthcare professional for personal medical advice.</p><button id="ac">I understand</button></div>';
-  document.getElementById("ac").onclick=function(){P.acc=true;save();home()};return}
+ if(!window.SEEN){A.innerHTML='<div class="hero"><h1>🩺 Medicine Quiz</h1></div><div class="card"><h2>Medical disclaimer</h2><p>This app is for educational purposes only. It is not intended for self-medication, self-diagnosis, or personal treatment decisions. Please consult a qualified healthcare professional for personal medical advice.</p><button id="ac">I understand</button></div>';
+  document.getElementById("ac").onclick=function(){window.SEEN=true;home()};return}
  var h='<div class="hero"><h1>🩺 Medicine Quiz</h1><p>Total points: <b>'+P.pts+'</b> · Levels passed: <b>'+P.done+'</b>/1000</p></div><h2>Categories</h2>';
  CATS.forEach(function(c,i){var lo=i*100+1,hi=i*100+100,open=P.max>=lo;
   var d=Math.max(0,Math.min(100,P.max-lo));
