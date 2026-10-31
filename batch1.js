@@ -100,3 +100,4 @@ window.QB=[
 ["BMI is calculated using:","Height and weight","Blood type","Age only","Eye color","BMI compares weight with height."],
 ["A prescription is:","A written order for medicine or treatment","A food menu","A bus ticket","An exam paper","A doctor writes it for a patient."]
 ];
+window.QT=Object.assign(window.QT||{},{1:"Body organs",2:"Bones & muscles",3:"Blood & circulation",4:"Digestion & nutrition",5:"Breathing & nerves",6:"Skin, senses & hygiene",7:"Health & doctors",8:"First aid & safety",9:"Body systems",10:"Mixed review"});

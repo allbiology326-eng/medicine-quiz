@@ -34,7 +34,6 @@ button:disabled{opacity:.85}
 </style></head><body>
 <div id="app"></div>
 <div class="ad">Banner ad placeholder (real AdMob banner goes here later)</div>
-<script src="batch1.js"></script>
 <script>
 var CATS=["Beginner","Easy","Intermediate","Upper Intermediate","Moderate","Upper Moderate","Hard","Very Hard","Expert","Master"];
 var Q=[
@@ -66,16 +65,18 @@ function home(){
  A.querySelectorAll("[data-c]").forEach(function(b){b.onclick=function(){levels(+b.dataset.c)}});
  document.getElementById("rs").onclick=function(){if(confirm("Erase all progress?")){P={max:1,best:{},pts:0,done:0,acc:true};save();home()}}}
 function levels(c){
- var h='<button class="alt" id="bk">← Back</button><h2>'+CATS[c]+'</h2><div class="grid">';
- for(var i=1;i<=100;i++){var n=c*100+i,ok=n<=P.max&&n<=Math.floor((window.QB||[]).length/10);h+='<button '+(ok?'data-n="'+n+'"':'class="lock" disabled')+'>'+(ok?(P.best[n]>=70?'✓':'')+i:'🔒')+'</button>'}
- A.innerHTML=h+'</div>';window.scrollTo(0,0);
+ var have=Math.floor((window.QB||[]).length/10),T=window.QT||{},h='<button class="alt" id="bk">← Back</button><h2>'+CATS[c]+'</h2>',shown=Math.max(0,Math.min(have,c*100+100)-c*100);
+ for(var i=1;i<=shown;i++){var n=c*100+i,ok=n<=P.max,bs=P.best[n];
+  h+='<button '+(ok?'data-n="'+n+'"':'class="lock" disabled')+' style="text-align:left">'+(ok?(bs>=70?'✅ ':'▶ '):'🔒 ')+'Level '+n+' · '+(T[n]||'Quiz')+(bs!==undefined?' <small>('+bs+'/100)</small>':'')+'</button>'}
+ if(shown<100)h+='<p class="small">'+(100-shown)+' more levels coming soon.</p>';
+ A.innerHTML=h;window.scrollTo(0,0);
  document.getElementById("bk").onclick=home;
  A.querySelectorAll("[data-n]").forEach(function(b){b.onclick=function(){start(+b.dataset.n)}})}
 function qsFor(n){var B=window.QB||[],s=(n-1)*10;if(s+10>B.length)return null;return B.slice(s,s+10).map(function(r){return{q:r[0],o:sh([{t:r[1],c:true},{t:r[2],c:false},{t:r[3],c:false},{t:r[4],c:false}]),e:r[5]}})}
 function start(n){var qs=qsFor(n);if(!qs)return;S={n:n,i:0,sc:0,hint:false,qs:qs};ask()}
 function ask(){
  var q=S.qs[S.i],c=Math.floor((S.n-1)/100);S.done=false;
- var h='<div class="row"><span>'+CATS[c]+' · Level '+S.n+'</span><span>Score '+S.sc+'</span></div><div class="bar"><i style="width:'+S.i*10+'%"></i></div><div class="card"><div class="small">Question '+(S.i+1)+' of 10</div><h2>'+q.q+'</h2><div id="ops"></div><div id="fb"></div></div><button class="alt" id="hn"'+(S.hint?' disabled':'')+'>🎬 Watch ad for a 50/50 hint</button>';
+ var h='<div class="row"><span>Level '+S.n+' · '+((window.QT||{})[S.n]||CATS[c])+'</span><span>Score '+S.sc+'</span></div><div class="bar"><i style="width:'+S.i*10+'%"></i></div><div class="card"><div class="small">Question '+(S.i+1)+' of 10</div><h2>'+q.q+'</h2><div id="ops"></div><div id="fb"></div></div><button class="alt" id="hn"'+(S.hint?' disabled':'')+'>🎬 Watch ad for a 50/50 hint</button>';
  A.innerHTML=h;window.scrollTo(0,0);var ops=document.getElementById("ops");
  q.o.forEach(function(o,k){var b=document.createElement("button");b.className="alt";b.textContent=o.t;b.onclick=function(){pick(k)};ops.appendChild(b)});
  document.getElementById("hn").onclick=function(){if(S.done||S.hint)return;S.hint=true;ov("Rewarded ad placeholder","Your hint is coming…",3,function(){var bs=ops.children,w=0;q.o.forEach(function(o,k){if(!o.c&&w<2){bs[k].style.display="none";w++}});ask2()})}}
@@ -104,6 +105,7 @@ function fin(){
 function ov(t,m,s,cb){
  var d=document.createElement("div");d.className="ov";document.body.appendChild(d);
  (function tick(){if(s<=0){d.remove();cb();return}d.innerHTML='<h2>'+t+'</h2><p>'+m+'</p><div class="big">'+s+'</div>';s--;setTimeout(tick,1000)})()}
-home();
+function loadB(i){var t=document.createElement("script");t.src="batch"+i+".js";t.onload=function(){loadB(i+1)};t.onerror=function(){home()};document.head.appendChild(t)}
+loadB(1);
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
 </script></body></html>
